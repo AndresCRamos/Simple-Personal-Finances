@@ -46,7 +46,7 @@ func LoadConfig() *Config {
 	}
 
 	if db_port == "" {
-		db_host = "5432"
+		db_port = "5432"
 	}
 
 	connString := fmt.Sprintf(
