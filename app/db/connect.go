@@ -6,12 +6,16 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	incomesource "github.com/AndresCRamos/Simple-Personal-Finances/models/income_source"
 	"github.com/AndresCRamos/Simple-Personal-Finances/models/user"
+	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
 )
 
-func Connect(connectionString string) *gorm.DB {
+var err error
+
+func Connect(connectionString string) {
 	log.Println("Connecting to Database...")
-	Instance, err := gorm.Open(postgres.New(postgres.Config{
+	utils.Instance, err = gorm.Open(postgres.New(postgres.Config{
 		DSN: connectionString,
 	}), &gorm.Config{},
 	)
@@ -20,11 +24,11 @@ func Connect(connectionString string) *gorm.DB {
 		panic("Cannot connect to DB")
 	}
 	log.Println("Connected to Database")
-	return Instance
 }
 
-func Migrate(Instance *gorm.DB) {
+func Migrate() {
 	log.Println("Database Migration Started...")
-	Instance.AutoMigrate(&user.User{})
+	utils.Instance.AutoMigrate(&user.User{})
+	utils.Instance.AutoMigrate(&incomesource.IncomeSource{})
 	log.Println("Database Migration Completed")
 }

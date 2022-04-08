@@ -8,7 +8,7 @@ import (
 
 func main() {
 	config := settings.LoadConfig()
-	dbInstance := db.Connect(config.GetDB())
-	db.Migrate(dbInstance)
+	db.Connect(config.GetDB())
+	db.Migrate()
 	server.Serve(config.GetPort())
 }
