@@ -6,4 +6,5 @@ var SourcesRoutes = []utils.Route{
 	{Url: "/api/v1/source", Handler: GetIncomeSourcesByUserID, Method: "GET"},
 	{Url: "/api/v1/source/{id}", Handler: GetIncomeSourcesByID, Method: "GET"},
 	{Url: "/api/v1/source", Handler: CreateIncomeSource, Method: "POST"},
+	{Url: "/api/v1/source/{id}", Handler: UpdateIncomeSource, Method: "PUT"},
 }
