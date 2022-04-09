@@ -39,7 +39,7 @@ func Validate(i interface{}) ([]FieldError, bool) {
 		nullable := !isItNullable(FieldTag)
 
 		if val, ok := FieldValue.(null.String); ok {
-			if !val.Valid && !nullable {
+			if (!val.Valid || val.String == "") && !nullable {
 				errorList = append(errorList, FieldError{Field: FieldName})
 				isValid = false
 			}
