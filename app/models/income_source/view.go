@@ -81,3 +81,17 @@ func UpdateIncomeSource(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(source)
 	}
 }
+
+func DeleteIncomeSource(w http.ResponseWriter, r *http.Request) {
+	sourceId := mux.Vars(r)["id"]
+	source, found, err := SearchIncomeSourceByID(sourceId)
+	if !found {
+		utils.DisplaySearchError(w, r, "Sources", err)
+	} else if err := utils.Instance.Delete(&source).Error; err != nil {
+		utils.DisplaySearchError(w, r, "Sources", err.Error())
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode("Deleted")
+	}
+}
