@@ -10,12 +10,16 @@ import (
 
 func GetIncomeSourcesByUserID(w http.ResponseWriter, r *http.Request) {
 	var incomeSources []IncomeSource
+	var incomeSourcesGet []IncomeSourceGet
 	if err := utils.Instance.Find(&incomeSources).Error; err != nil {
 		utils.DisplaySearchError(w, r, "Sources", err.Error())
 	}
+	for _, sourceItem := range incomeSources {
+		incomeSourcesGet = append(incomeSourcesGet, IncomeSourceGet(sourceItem))
+	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(incomeSources)
+	json.NewEncoder(w).Encode(incomeSourcesGet)
 }
 
 func GetIncomeSourcesByID(w http.ResponseWriter, r *http.Request) {
@@ -42,6 +46,7 @@ func CreateIncomeSource(w http.ResponseWriter, r *http.Request) {
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(incomeSource)
+		incomeSourceGet := IncomeSourceGet(incomeSource)
+		json.NewEncoder(w).Encode(&incomeSourceGet)
 	}
 }
