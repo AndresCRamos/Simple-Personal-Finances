@@ -7,10 +7,11 @@ require (
 	github.com/joho/godotenv v1.4.0
 	gorm.io/driver/postgres v1.3.3
 	gorm.io/gorm v1.23.4
+	github.com/emvi/null v1.3.1
 )
 
 require (
-	github.com/emvi/null v1.3.1 // indirect
+	
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.11.0 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
