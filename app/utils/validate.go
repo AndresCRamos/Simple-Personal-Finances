@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"reflect"
 	"strings"
 
@@ -40,9 +39,6 @@ func Validate(i interface{}) ([]FieldError, bool) {
 		nullable := !isItNullable(FieldTag)
 
 		if val, ok := FieldValue.(null.String); ok {
-			fmt.Printf("Field: %s Value: %v\n", FieldName, FieldValue)
-			fmt.Printf("Nullable: %#v\n\n", nullable)
-
 			if !val.Valid && !nullable {
 				errorList = append(errorList, FieldError{Field: FieldName})
 				isValid = false
