@@ -8,6 +8,16 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func GetBillsBySourceId(ID uint) []BillList {
+	var billList []Bill
+	var billListDetail []BillList
+	utils.Instance.Find(&billList, "income_source_id = ?", ID)
+	for _, currentBill := range billList {
+		billListDetail = append(billListDetail, BillList(currentBill))
+	}
+	return billListDetail
+}
+
 func GetBillsByUserID(w http.ResponseWriter, r *http.Request) {
 	var Bills []Bill
 	var BillsGet []BillGet
