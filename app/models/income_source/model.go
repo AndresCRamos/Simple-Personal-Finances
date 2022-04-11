@@ -3,6 +3,7 @@ package incomesource
 import (
 	"time"
 
+	bill "github.com/AndresCRamos/Simple-Personal-Finances/models/bills"
 	"github.com/emvi/null"
 	"gorm.io/gorm"
 )
@@ -15,4 +16,5 @@ type IncomeSource struct {
 	Name      null.String    `gorm:"notnull" json:"name"`
 	Balance   float64        `json:"balance"`
 	User_id   null.String    `gorm:"notnull" json:"user_id"`
+	Bills     []bill.Bill    `json:"-"`
 }
