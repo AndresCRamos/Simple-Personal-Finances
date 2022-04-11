@@ -6,6 +6,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
+	bill "github.com/AndresCRamos/Simple-Personal-Finances/models/bills"
 	incomesource "github.com/AndresCRamos/Simple-Personal-Finances/models/income_source"
 	"github.com/AndresCRamos/Simple-Personal-Finances/models/user"
 	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
@@ -30,5 +31,6 @@ func Migrate() {
 	log.Println("Database Migration Started...")
 	utils.Instance.AutoMigrate(&user.User{})
 	utils.Instance.AutoMigrate(&incomesource.IncomeSource{})
+	utils.Instance.AutoMigrate(&bill.Bill{})
 	log.Println("Database Migration Completed")
 }
