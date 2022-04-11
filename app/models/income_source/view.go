@@ -46,6 +46,19 @@ func GetIncomeSourcesByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetIncomeSourcesDetailByID(w http.ResponseWriter, r *http.Request) {
+	sourceId := mux.Vars(r)["id"]
+	source, found, err := SearchIncomeSourceByID(sourceId)
+	if !found {
+		utils.DisplaySearchError(w, r, "Sources", err)
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		incomeSourceDetail := IncomeSourceDetail(source)
+		json.NewEncoder(w).Encode(&incomeSourceDetail)
+	}
+}
+
 func CreateIncomeSource(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var incomeSource IncomeSource
