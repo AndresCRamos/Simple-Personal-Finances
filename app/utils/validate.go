@@ -43,7 +43,18 @@ func Validate(i interface{}) ([]FieldError, bool) {
 				errorList = append(errorList, FieldError{Field: FieldName})
 				isValid = false
 			}
+		} else if val, ok := FieldValue.(null.Float64); ok {
+			if (!val.Valid) && !nullable {
+				errorList = append(errorList, FieldError{Field: FieldName})
+				isValid = false
+			}
+		} else if val, ok := FieldValue.(null.Int64); ok {
+			if (!val.Valid) && !nullable {
+				errorList = append(errorList, FieldError{Field: FieldName})
+				isValid = false
+			}
 		}
+
 	}
 	return errorList, isValid
 }

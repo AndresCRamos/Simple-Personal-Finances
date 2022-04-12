@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 
+	bill "github.com/AndresCRamos/Simple-Personal-Finances/models/bills"
 	incomesource "github.com/AndresCRamos/Simple-Personal-Finances/models/income_source"
 	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
 	"github.com/gorilla/mux"
@@ -21,6 +22,7 @@ func loadRoutes() {
 	}
 	utils.AddRoutes(rootUrls)
 	utils.AddRoutes(incomesource.SourcesRoutes)
+	utils.AddRoutes(bill.BillsRoutes)
 }
 
 func getPaths(w http.ResponseWriter, r *http.Request) {

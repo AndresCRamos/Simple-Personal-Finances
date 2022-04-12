@@ -1,4 +1,4 @@
-package incomesource
+package bill
 
 import (
 	"encoding/json"
@@ -8,22 +8,32 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func GetIncomeSourcesByUserID(w http.ResponseWriter, r *http.Request) {
-	var incomeSources []IncomeSource
-	var incomeSourcesGet []IncomeSourceGet
-	if err := utils.Instance.Find(&incomeSources).Error; err != nil {
+func GetBillsBySourceId(ID uint) []BillList {
+	var billList []Bill
+	var billListDetail []BillList
+	utils.Instance.Find(&billList, "income_source_id = ?", ID)
+	for _, currentBill := range billList {
+		billListDetail = append(billListDetail, BillList(currentBill))
+	}
+	return billListDetail
+}
+
+func GetBillsByUserID(w http.ResponseWriter, r *http.Request) {
+	var Bills []Bill
+	var BillsGet []BillGet
+	if err := utils.Instance.Find(&Bills).Error; err != nil {
 		utils.DisplaySearchError(w, r, "Sources", err.Error())
 	}
-	for _, sourceItem := range incomeSources {
-		incomeSourcesGet = append(incomeSourcesGet, IncomeSourceGet(sourceItem))
+	for _, sourceItem := range Bills {
+		BillsGet = append(BillsGet, BillGet(sourceItem))
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(incomeSourcesGet)
+	json.NewEncoder(w).Encode(BillsGet)
 }
 
-func SearchIncomeSourceByID(id string) (IncomeSource, bool, string) {
-	var source IncomeSource
+func SearchBillByID(id string) (Bill, bool, string) {
+	var source Bill
 	err := utils.Instance.First(&source, id).Error
 	found := true
 	errorString := ""
@@ -34,9 +44,9 @@ func SearchIncomeSourceByID(id string) (IncomeSource, bool, string) {
 	return source, found, errorString
 }
 
-func GetIncomeSourcesByID(w http.ResponseWriter, r *http.Request) {
+func GetBillByID(w http.ResponseWriter, r *http.Request) {
 	sourceId := mux.Vars(r)["id"]
-	source, found, err := SearchIncomeSourceByID(sourceId)
+	source, found, err := SearchBillByID(sourceId)
 	if !found {
 		utils.DisplaySearchError(w, r, "Sources", err)
 	} else {
@@ -46,38 +56,25 @@ func GetIncomeSourcesByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func GetIncomeSourcesDetailByID(w http.ResponseWriter, r *http.Request) {
-	sourceId := mux.Vars(r)["id"]
-	source, found, err := SearchIncomeSourceByID(sourceId)
-	if !found {
-		utils.DisplaySearchError(w, r, "Sources", err)
-	} else {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		incomeSourceDetail := IncomeSourceDetail(source)
-		json.NewEncoder(w).Encode(&incomeSourceDetail)
-	}
-}
-
-func CreateIncomeSource(w http.ResponseWriter, r *http.Request) {
+func CreateBill(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var incomeSource IncomeSource
-	json.NewDecoder(r.Body).Decode(&incomeSource)
-	errorList, valid := utils.Validate(incomeSource)
+	var Bill Bill
+	json.NewDecoder(r.Body).Decode(&Bill)
+	errorList, valid := utils.Validate(Bill)
 	if !valid {
 		utils.DisplayFieldErrors(w, r, "Source", errorList)
-	} else if err := utils.Instance.Create(&incomeSource).Error; err != nil {
+	} else if err := utils.Instance.Create(&Bill).Error; err != nil {
 		utils.DisplaySearchError(w, r, "Sources", err.Error())
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		incomeSourceGet := IncomeSourceGet(incomeSource)
-		json.NewEncoder(w).Encode(&incomeSourceGet)
+		BillGet := BillGet(Bill)
+		json.NewEncoder(w).Encode(&BillGet)
 	}
 }
 
-func UpdateIncomeSource(w http.ResponseWriter, r *http.Request) {
-	var source IncomeSource
+func UpdateBill(w http.ResponseWriter, r *http.Request) {
+	var source Bill
 	sourceId := mux.Vars(r)["id"]
 	if err := utils.Instance.First(&source, sourceId).Error; err != nil {
 		utils.DisplaySearchError(w, r, "Sources", err.Error())
@@ -95,9 +92,9 @@ func UpdateIncomeSource(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func DeleteIncomeSource(w http.ResponseWriter, r *http.Request) {
+func DeleteBill(w http.ResponseWriter, r *http.Request) {
 	sourceId := mux.Vars(r)["id"]
-	source, found, err := SearchIncomeSourceByID(sourceId)
+	source, found, err := SearchBillByID(sourceId)
 	if !found {
 		utils.DisplaySearchError(w, r, "Sources", err)
 	} else if err := utils.Instance.Delete(&source).Error; err != nil {
