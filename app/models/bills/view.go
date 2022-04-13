@@ -60,17 +60,22 @@ func GetBillByID(w http.ResponseWriter, r *http.Request) {
 
 func CreateBill(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var Bill Bill
-	json.NewDecoder(r.Body).Decode(&Bill)
-	errorList, valid := utils.Validate(Bill)
+	var billData BillCreate
+	errJson := json.NewDecoder(r.Body).Decode(&billData)
+	if errJson != nil {
+		utils.DisplaySearchError(w, r, "bills", errJson.Error())
+		return
+	}
+	bill := *billData.Parse()
+	errorList, valid := utils.Validate(bill)
 	if !valid {
 		utils.DisplayFieldErrors(w, r, "bill", errorList)
-	} else if err := utils.Instance.Create(&Bill).Error; err != nil {
+	} else if err := utils.Instance.Create(&bill).Error; err != nil {
 		utils.DisplaySearchError(w, r, "bills", err.Error())
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		BillGet := BillGet(Bill)
+		BillGet := BillGet(bill)
 		json.NewEncoder(w).Encode(&BillGet)
 	}
 }
