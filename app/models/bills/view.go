@@ -82,20 +82,22 @@ func CreateBill(w http.ResponseWriter, r *http.Request) {
 
 func UpdateBill(w http.ResponseWriter, r *http.Request) {
 	var bill Bill
+	var billData BillCreate
 	billId := mux.Vars(r)["id"]
 	if err := utils.Instance.First(&bill, billId).Error; err != nil {
 		utils.DisplaySearchError(w, r, "bills", err.Error())
 		return
 	}
-	json.NewDecoder(r.Body).Decode(&bill)
+	json.NewDecoder(r.Body).Decode(&billData)
+	bill = *billData.Parse()
 	if errorList, valid := utils.Validate(bill); !valid {
 		utils.DisplayFieldErrors(w, r, "bill", errorList)
-	} else if err := utils.Instance.Save(&bill).Error; err != nil {
+	} else if err := utils.Instance.Where("id = ?", billId).Updates(&bill).Error; err != nil {
 		utils.DisplaySearchError(w, r, "bills", err.Error())
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(bill)
+		json.NewEncoder(w).Encode(&bill)
 	}
 }
 
