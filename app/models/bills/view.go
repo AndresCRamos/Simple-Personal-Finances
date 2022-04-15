@@ -2,6 +2,7 @@ package bill
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
@@ -22,10 +23,10 @@ func GetBillsByUserID(w http.ResponseWriter, r *http.Request) {
 	var Bills []Bill
 	var BillsGet []BillGet
 	if err := utils.Instance.Find(&Bills).Error; err != nil {
-		utils.DisplaySearchError(w, r, "Sources", err.Error())
+		utils.DisplaySearchError(w, r, "bills", err.Error())
 	}
-	for _, sourceItem := range Bills {
-		BillsGet = append(BillsGet, BillGet(sourceItem))
+	for _, billItem := range Bills {
+		BillsGet = append(BillsGet, BillGet(billItem))
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -33,72 +34,80 @@ func GetBillsByUserID(w http.ResponseWriter, r *http.Request) {
 }
 
 func SearchBillByID(id string) (Bill, bool, string) {
-	var source Bill
-	err := utils.Instance.First(&source, id).Error
+	var bill Bill
+	err := utils.Instance.First(&bill, id).Error
 	found := true
 	errorString := ""
 	if err != nil {
 		found = false
 		errorString = err.Error()
 	}
-	return source, found, errorString
+	return bill, found, errorString
 }
 
 func GetBillByID(w http.ResponseWriter, r *http.Request) {
-	sourceId := mux.Vars(r)["id"]
-	source, found, err := SearchBillByID(sourceId)
+	billId := mux.Vars(r)["id"]
+	bill, found, err := SearchBillByID(billId)
 	if !found {
-		utils.DisplaySearchError(w, r, "Sources", err)
+		utils.DisplaySearchError(w, r, "bills", err)
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(source)
+		res, _ := bill.MarshalJSON()
+		fmt.Fprint(w, string(res))
 	}
 }
 
 func CreateBill(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var Bill Bill
-	json.NewDecoder(r.Body).Decode(&Bill)
-	errorList, valid := utils.Validate(Bill)
+	var billData BillCreate
+	errJson := json.NewDecoder(r.Body).Decode(&billData)
+	if errJson != nil {
+		utils.DisplaySearchError(w, r, "bills", errJson.Error())
+		return
+	}
+	bill := *billData.Parse()
+	errorList, valid := utils.Validate(bill)
 	if !valid {
-		utils.DisplayFieldErrors(w, r, "Source", errorList)
-	} else if err := utils.Instance.Create(&Bill).Error; err != nil {
-		utils.DisplaySearchError(w, r, "Sources", err.Error())
+		utils.DisplayFieldErrors(w, r, "bill", errorList)
+	} else if err := utils.Instance.Create(&bill).Error; err != nil {
+		utils.DisplaySearchError(w, r, "bills", err.Error())
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		BillGet := BillGet(Bill)
+		BillGet := BillGet(bill)
 		json.NewEncoder(w).Encode(&BillGet)
 	}
 }
 
 func UpdateBill(w http.ResponseWriter, r *http.Request) {
-	var source Bill
-	sourceId := mux.Vars(r)["id"]
-	if err := utils.Instance.First(&source, sourceId).Error; err != nil {
-		utils.DisplaySearchError(w, r, "Sources", err.Error())
+	var bill Bill
+	var billData BillCreate
+	billId := mux.Vars(r)["id"]
+	if err := utils.Instance.First(&bill, billId).Error; err != nil {
+		utils.DisplaySearchError(w, r, "bills", err.Error())
 		return
 	}
-	json.NewDecoder(r.Body).Decode(&source)
-	if errorList, valid := utils.Validate(source); !valid {
-		utils.DisplayFieldErrors(w, r, "Source", errorList)
-	} else if err := utils.Instance.Save(&source).Error; err != nil {
-		utils.DisplaySearchError(w, r, "Sources", err.Error())
+	json.NewDecoder(r.Body).Decode(&billData)
+	bill = *billData.Parse()
+	if errorList, valid := utils.Validate(bill); !valid {
+		utils.DisplayFieldErrors(w, r, "bill", errorList)
+	} else if err := utils.Instance.Where("id = ?", billId).Updates(&bill).Error; err != nil {
+		utils.DisplaySearchError(w, r, "bills", err.Error())
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(source)
+		json.NewEncoder(w).Encode(&bill)
 	}
 }
 
 func DeleteBill(w http.ResponseWriter, r *http.Request) {
-	sourceId := mux.Vars(r)["id"]
-	source, found, err := SearchBillByID(sourceId)
+	billId := mux.Vars(r)["id"]
+	bill, found, err := SearchBillByID(billId)
 	if !found {
-		utils.DisplaySearchError(w, r, "Sources", err)
-	} else if err := utils.Instance.Delete(&source).Error; err != nil {
-		utils.DisplaySearchError(w, r, "Sources", err.Error())
+		utils.DisplaySearchError(w, r, "bills", err)
+	} else if err := utils.Instance.Delete(&bill).Error; err != nil {
+		utils.DisplaySearchError(w, r, "bills", err.Error())
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
