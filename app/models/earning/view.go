@@ -2,6 +2,7 @@ package earning
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
@@ -22,10 +23,10 @@ func GetEarningsByUserID(w http.ResponseWriter, r *http.Request) {
 	var Earnings []Earning
 	var EarningsGet []EarningGet
 	if err := utils.Instance.Find(&Earnings).Error; err != nil {
-		utils.DisplaySearchError(w, r, "Sources", err.Error())
+		utils.DisplaySearchError(w, r, "earnings", err.Error())
 	}
-	for _, sourceItem := range Earnings {
-		EarningsGet = append(EarningsGet, EarningGet(sourceItem))
+	for _, earningItem := range Earnings {
+		EarningsGet = append(EarningsGet, EarningGet(earningItem))
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -33,72 +34,80 @@ func GetEarningsByUserID(w http.ResponseWriter, r *http.Request) {
 }
 
 func SearchEarningByID(id string) (Earning, bool, string) {
-	var source Earning
-	err := utils.Instance.First(&source, id).Error
+	var earning Earning
+	err := utils.Instance.First(&earning, id).Error
 	found := true
 	errorString := ""
 	if err != nil {
 		found = false
 		errorString = err.Error()
 	}
-	return source, found, errorString
+	return earning, found, errorString
 }
 
 func GetEarningByID(w http.ResponseWriter, r *http.Request) {
-	sourceId := mux.Vars(r)["id"]
-	source, found, err := SearchEarningByID(sourceId)
+	earningId := mux.Vars(r)["id"]
+	earning, found, err := SearchEarningByID(earningId)
 	if !found {
-		utils.DisplaySearchError(w, r, "Sources", err)
+		utils.DisplaySearchError(w, r, "earnings", err)
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(source)
+		res, _ := earning.MarshalJSON()
+		fmt.Fprint(w, string(res))
 	}
 }
 
 func CreateEarning(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var Earning Earning
-	json.NewDecoder(r.Body).Decode(&Earning)
-	errorList, valid := utils.Validate(Earning)
+	var earningData EarningCreate
+	errJson := json.NewDecoder(r.Body).Decode(&earningData)
+	if errJson != nil {
+		utils.DisplaySearchError(w, r, "earnings", errJson.Error())
+		return
+	}
+	earning := *earningData.Parse()
+	errorList, valid := utils.Validate(earning)
 	if !valid {
-		utils.DisplayFieldErrors(w, r, "Source", errorList)
-	} else if err := utils.Instance.Create(&Earning).Error; err != nil {
-		utils.DisplaySearchError(w, r, "Sources", err.Error())
+		utils.DisplayFieldErrors(w, r, "earning", errorList)
+	} else if err := utils.Instance.Create(&earning).Error; err != nil {
+		utils.DisplaySearchError(w, r, "earnings", err.Error())
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		EarningGet := EarningGet(Earning)
+		EarningGet := EarningGet(earning)
 		json.NewEncoder(w).Encode(&EarningGet)
 	}
 }
 
 func UpdateEarning(w http.ResponseWriter, r *http.Request) {
-	var source Earning
-	sourceId := mux.Vars(r)["id"]
-	if err := utils.Instance.First(&source, sourceId).Error; err != nil {
-		utils.DisplaySearchError(w, r, "Sources", err.Error())
+	var earning Earning
+	var earningData EarningCreate
+	earningId := mux.Vars(r)["id"]
+	if err := utils.Instance.First(&earning, earningId).Error; err != nil {
+		utils.DisplaySearchError(w, r, "earnings", err.Error())
 		return
 	}
-	json.NewDecoder(r.Body).Decode(&source)
-	if errorList, valid := utils.Validate(source); !valid {
-		utils.DisplayFieldErrors(w, r, "Source", errorList)
-	} else if err := utils.Instance.Save(&source).Error; err != nil {
-		utils.DisplaySearchError(w, r, "Sources", err.Error())
+	json.NewDecoder(r.Body).Decode(&earningData)
+	earning = *earningData.Parse()
+	if errorList, valid := utils.Validate(earning); !valid {
+		utils.DisplayFieldErrors(w, r, "earning", errorList)
+	} else if err := utils.Instance.Where("id = ?", earningId).Updates(&earning).Error; err != nil {
+		utils.DisplaySearchError(w, r, "earnings", err.Error())
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(source)
+		json.NewEncoder(w).Encode(&earning)
 	}
 }
 
 func DeleteEarning(w http.ResponseWriter, r *http.Request) {
-	sourceId := mux.Vars(r)["id"]
-	source, found, err := SearchEarningByID(sourceId)
+	earningId := mux.Vars(r)["id"]
+	earning, found, err := SearchEarningByID(earningId)
 	if !found {
-		utils.DisplaySearchError(w, r, "Sources", err)
-	} else if err := utils.Instance.Delete(&source).Error; err != nil {
-		utils.DisplaySearchError(w, r, "Sources", err.Error())
+		utils.DisplaySearchError(w, r, "earnings", err)
+	} else if err := utils.Instance.Delete(&earning).Error; err != nil {
+		utils.DisplaySearchError(w, r, "earnings", err.Error())
 	} else {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
