@@ -53,8 +53,12 @@ func Validate(i interface{}) ([]FieldError, bool) {
 				errorList = append(errorList, FieldError{Field: FieldName})
 				isValid = false
 			}
+		} else if val, ok := FieldValue.(null.Time); ok {
+			if (!val.Valid) && !nullable {
+				errorList = append(errorList, FieldError{Field: FieldName})
+				isValid = false
+			}
 		}
-
 	}
 	return errorList, isValid
 }
