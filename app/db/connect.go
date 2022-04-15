@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 
 	bill "github.com/AndresCRamos/Simple-Personal-Finances/models/bills"
+	earning "github.com/AndresCRamos/Simple-Personal-Finances/models/earning"
 	incomesource "github.com/AndresCRamos/Simple-Personal-Finances/models/income_source"
 	"github.com/AndresCRamos/Simple-Personal-Finances/models/user"
 	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
@@ -32,5 +33,6 @@ func Migrate() {
 	utils.Instance.AutoMigrate(&user.User{})
 	utils.Instance.AutoMigrate(&incomesource.IncomeSource{})
 	utils.Instance.AutoMigrate(&bill.Bill{})
+	utils.Instance.AutoMigrate(&earning.Earning{})
 	log.Println("Database Migration Completed")
 }
