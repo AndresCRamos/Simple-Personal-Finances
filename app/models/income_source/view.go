@@ -63,9 +63,9 @@ func CreateIncomeSource(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var incomeSource IncomeSource
 	json.NewDecoder(r.Body).Decode(&incomeSource)
-	errorList, valid := utils.Validate(incomeSource)
+	valid := utils.Validate(w, "Source", incomeSource)
 	if !valid {
-		utils.DisplayFieldErrors(w, r, "Source", errorList)
+		return
 	} else if err := utils.Instance.Create(&incomeSource).Error; err != nil {
 		utils.DisplaySearchError(w, r, "Sources", err.Error())
 	} else {
@@ -84,8 +84,8 @@ func UpdateIncomeSource(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.NewDecoder(r.Body).Decode(&source)
-	if errorList, valid := utils.Validate(source); !valid {
-		utils.DisplayFieldErrors(w, r, "Source", errorList)
+	if !utils.Validate(w, "Source", source) {
+		return
 	} else if err := utils.Instance.Save(&source).Error; err != nil {
 		utils.DisplaySearchError(w, r, "Sources", err.Error())
 	} else {

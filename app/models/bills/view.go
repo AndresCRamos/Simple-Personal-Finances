@@ -67,9 +67,9 @@ func CreateBill(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	bill := *billData.Parse()
-	errorList, valid := utils.Validate(bill)
+	valid := utils.Validate(w, "Source", bill)
 	if !valid {
-		utils.DisplayFieldErrors(w, r, "bill", errorList)
+		return
 	} else if err := utils.Instance.Create(&bill).Error; err != nil {
 		utils.DisplaySearchError(w, r, "bills", err.Error())
 	} else {
@@ -90,8 +90,8 @@ func UpdateBill(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewDecoder(r.Body).Decode(&billData)
 	bill = *billData.Parse()
-	if errorList, valid := utils.Validate(bill); !valid {
-		utils.DisplayFieldErrors(w, r, "bill", errorList)
+	if !utils.Validate(w, "Source", bill) {
+		return
 	} else if err := utils.Instance.Where("id = ?", billId).Updates(&bill).Error; err != nil {
 		utils.DisplaySearchError(w, r, "bills", err.Error())
 	} else {
