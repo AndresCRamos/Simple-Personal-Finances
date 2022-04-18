@@ -1,6 +1,8 @@
 package auth_token
 
 import (
+	"time"
+
 	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -21,4 +23,8 @@ func SearchToken(btoken string) (Token, bool) {
 		valid = false
 	}
 	return token, valid
+}
+
+func ValidateToken(token Token) bool {
+	return time.Now().Before(token.ExpiresAt)
 }
