@@ -74,7 +74,7 @@ type BillCreate struct {
 	Description      null.String  `json:"description"`
 	Amount           null.Float64 `json:"amount"`
 	Date             null.String  `json:"date"`
-	User_id          uint         `json:"user_id"`
+	User_id          null.Int64   `json:"user_id"`
 	Income_Source_id null.Int64   `json:"source_id"`
 }
 
@@ -86,7 +86,7 @@ func (bc *BillCreate) Parse() *Bill {
 		Name:             bc.Name,
 		Description:      bc.Description,
 		Amount:           bc.Amount,
-		User_id:          bc.User_id,
+		User_id:          uint(bc.User_id.Int64),
 		Income_Source_id: bc.Income_Source_id,
 		Date:             null.NewTime(date, validDate),
 	}
