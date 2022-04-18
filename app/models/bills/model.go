@@ -16,6 +16,6 @@ type Bill struct {
 	Description      null.String    `json:"description"`
 	Amount           null.Float64   `json:"amount"`
 	Date             null.Time      `gorm:"type:date;notnull" json:"date"`
-	User_id          uint           `gorm:"notnull" json:"user_id"`
+	User_id          null.Int64     `gorm:"notnull" json:"user_id"`
 	Income_Source_id null.Int64     `gorm:"notnull" json:"source_id"`
 }

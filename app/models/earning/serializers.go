@@ -18,14 +18,14 @@ func (ig *Earning) MarshalJSON() ([]byte, error) {
 		Description      string  `json:"description"`
 		Amount           float64 `json:"amount"`
 		Date             string  `json:"date"`
-		User_id          uint    `json:"user_id"`
+		User_id          int64   `json:"user_id"`
 		Income_Source_id int64   `json:"source_id"`
 	}{
 		ig.Name.String,
 		ig.Description.String,
 		ig.Amount.Float64,
 		fmt.Sprintf("%d-%v-%d", year, int(month), day),
-		ig.User_id,
+		ig.User_id.Int64,
 		ig.Income_Source_id.Int64,
 	})
 }
@@ -38,7 +38,7 @@ func (ig *EarningGet) MarshalJSON() ([]byte, error) {
 		Description      string  `json:"description"`
 		Amount           float64 `json:"amount"`
 		Date             string  `json:"date"`
-		User_id          uint    `json:"user_id"`
+		User_id          int64   `json:"user_id"`
 		Income_Source_id int64   `json:"source_id"`
 	}{
 		ig.ID,
@@ -46,7 +46,7 @@ func (ig *EarningGet) MarshalJSON() ([]byte, error) {
 		ig.Description.String,
 		ig.Amount.Float64,
 		fmt.Sprintf("%d-%v-%d", year, int(month), day),
-		ig.User_id,
+		ig.User_id.Int64,
 		ig.Income_Source_id.Int64,
 	})
 }
@@ -86,7 +86,7 @@ func (bc *EarningCreate) Parse() *Earning {
 		Name:             bc.Name,
 		Description:      bc.Description,
 		Amount:           bc.Amount,
-		User_id:          uint(bc.User_id.Int64),
+		User_id:          bc.User_id,
 		Income_Source_id: bc.Income_Source_id,
 		Date:             null.NewTime(date, validDate),
 	}
