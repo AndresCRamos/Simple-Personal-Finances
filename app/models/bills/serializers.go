@@ -18,14 +18,14 @@ func (ig *Bill) MarshalJSON() ([]byte, error) {
 		Description      string  `json:"description"`
 		Amount           float64 `json:"amount"`
 		Date             string  `json:"date"`
-		User_id          string  `json:"user_id"`
+		User_id          uint    `json:"user_id"`
 		Income_Source_id int64   `json:"source_id"`
 	}{
 		ig.Name.String,
 		ig.Description.String,
 		ig.Amount.Float64,
 		fmt.Sprintf("%d-%v-%d", year, int(month), day),
-		ig.User_id.String,
+		ig.User_id,
 		ig.Income_Source_id.Int64,
 	})
 }
@@ -38,7 +38,7 @@ func (ig *BillGet) MarshalJSON() ([]byte, error) {
 		Description      string  `json:"description"`
 		Amount           float64 `json:"amount"`
 		Date             string  `json:"date"`
-		User_id          string  `json:"user_id"`
+		User_id          uint    `json:"user_id"`
 		Income_Source_id int64   `json:"source_id"`
 	}{
 		ig.ID,
@@ -46,7 +46,7 @@ func (ig *BillGet) MarshalJSON() ([]byte, error) {
 		ig.Description.String,
 		ig.Amount.Float64,
 		fmt.Sprintf("%d-%v-%d", year, int(month), day),
-		ig.User_id.String,
+		ig.User_id,
 		ig.Income_Source_id.Int64,
 	})
 }
@@ -74,7 +74,7 @@ type BillCreate struct {
 	Description      null.String  `json:"description"`
 	Amount           null.Float64 `json:"amount"`
 	Date             null.String  `json:"date"`
-	User_id          null.String  `json:"user_id"`
+	User_id          uint         `json:"user_id"`
 	Income_Source_id null.Int64   `json:"source_id"`
 }
 
