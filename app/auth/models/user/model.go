@@ -1,6 +1,9 @@
 package auth_user
 
-import "github.com/emvi/null"
+import (
+	token "github.com/AndresCRamos/Simple-Personal-Finances/auth/models/token"
+	"github.com/emvi/null"
+)
 
 type User struct {
 	ID       uint        `gorm:"primarykey" json:"-"`
@@ -8,4 +11,5 @@ type User struct {
 	LastName null.String `gorm:"notnull" json:"last_name"`
 	Email    null.String `gorm:"notnull;unique" json:"email"`
 	Password []byte      `gorm:"notnull" json:"-"`
+	Token    token.Token `json:"-"`
 }
