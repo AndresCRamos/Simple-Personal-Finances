@@ -2,10 +2,8 @@ package utils
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
-	"strings"
 )
 
 type simpleErrorAPIBuilder struct {
@@ -19,17 +17,8 @@ type listFieldErrorAPIBuilder struct {
 }
 
 type FieldError struct {
-	Field string
-}
-
-func (f FieldError) MarshalJSON() ([]byte, error) {
-	return json.Marshal(struct {
-		Field   string
-		Message string
-	}{
-		Field:   f.Field,
-		Message: fmt.Sprintf("%s field cant be null", strings.ToLower(f.Field)),
-	})
+	Field   string
+	Message string
 }
 
 func DisplaySearchError(w http.ResponseWriter, r *http.Request, source string, errorList string) {
@@ -38,7 +27,7 @@ func DisplaySearchError(w http.ResponseWriter, r *http.Request, source string, e
 	json.NewEncoder(w).Encode(simpleErrorAPIBuilder{Source: source, Errors: errorList})
 }
 
-func DisplayFieldErrors(w http.ResponseWriter, r *http.Request, source string, errorList []FieldError) {
+func DisplayFieldErrors(w http.ResponseWriter, source string, errorList []FieldError) {
 	log.Printf("404 %s, %v", source, errorList)
 	w.WriteHeader(http.StatusBadRequest)
 	json.NewEncoder(w).Encode(listFieldErrorAPIBuilder{Source: source, Errors: errorList})

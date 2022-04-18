@@ -15,9 +15,9 @@ func Register(w http.ResponseWriter, r *http.Request) {
 		utils.DisplaySearchError(w, r, "Users", errJson.Error())
 		return
 	}
-	errorList, valid := utils.Validate(user)
+	valid := utils.Validate(w, "Login", user)
 	if !valid {
-		utils.DisplayFieldErrors(w, r, "User", errorList)
+		return
 		// } else if err := utils.Instance.Create(user.Parse()).Error; err != nil {
 		// 	utils.DisplaySearchError(w, r, "Users", err.Error())
 	} else {

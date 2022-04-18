@@ -67,9 +67,9 @@ func CreateEarning(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	earning := *earningData.Parse()
-	errorList, valid := utils.Validate(earning)
+	valid := utils.Validate(w, "Source", earning)
 	if !valid {
-		utils.DisplayFieldErrors(w, r, "earning", errorList)
+		return
 	} else if err := utils.Instance.Create(&earning).Error; err != nil {
 		utils.DisplaySearchError(w, r, "earnings", err.Error())
 	} else {
@@ -90,8 +90,8 @@ func UpdateEarning(w http.ResponseWriter, r *http.Request) {
 	}
 	json.NewDecoder(r.Body).Decode(&earningData)
 	earning = *earningData.Parse()
-	if errorList, valid := utils.Validate(earning); !valid {
-		utils.DisplayFieldErrors(w, r, "earning", errorList)
+	if !utils.Validate(w, "Source", earning) {
+		return
 	} else if err := utils.Instance.Where("id = ?", earningId).Updates(&earning).Error; err != nil {
 		utils.DisplaySearchError(w, r, "earnings", err.Error())
 	} else {
