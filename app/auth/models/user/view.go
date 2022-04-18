@@ -2,7 +2,6 @@ package auth_user
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -69,18 +68,8 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 func LogOut(w http.ResponseWriter, r *http.Request) {
 	token := r.Header.Get("Token")
-	tokenObj, valid := auth_token.SearchToken(token)
-	fmt.Println()
+	valid := auth_token.DeleteToken(w, r, token)
 	if !valid {
-		utils.DisplaySearchError(w, r, "Log out", "Cant find this token")
-		return
-	}
-	if !auth_token.ValidateToken(tokenObj) {
-		utils.DisplaySearchError(w, r, "Log out", "This token has expired")
-		return
-	}
-	if err := utils.Instance.Delete(&tokenObj).Error; err != nil {
-		utils.DisplaySearchError(w, r, "Logout", err.Error())
 		return
 	}
 	json.NewEncoder(w).Encode(&struct {
