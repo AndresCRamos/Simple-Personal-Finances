@@ -16,7 +16,7 @@ type IncomeSource struct {
 	DeletedAt gorm.DeletedAt    `gorm:"index" json:"-"`
 	Name      null.String       `gorm:"notnull" json:"name"`
 	Balance   float64           `json:"balance"`
-	User_id   uint              `gorm:"notnull" json:"user_id"`
+	User_id   null.Int64        `gorm:"notnull" json:"-"`
 	Bills     []bill.Bill       `json:"-"`
 	Earnings  []earning.Earning `json:"-"`
 }
