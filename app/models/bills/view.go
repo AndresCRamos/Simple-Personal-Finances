@@ -97,11 +97,16 @@ func CreateBill(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateBill(w http.ResponseWriter, r *http.Request) {
+	tokenObj, valid := auth_token.VerifyToken(w, r)
+	if !valid {
+		return
+	}
 	var bill Bill
 	var billData BillCreate
 	billId := mux.Vars(r)["id"]
-	if err := utils.Instance.First(&bill, billId).Error; err != nil {
-		utils.DisplaySearchError(w, r, "bills", err.Error())
+	bill, found, err := SearchBillByID(billId, tokenObj.User_id)
+	if !found {
+		utils.DisplaySearchError(w, r, "bills", err)
 		return
 	}
 	json.NewDecoder(r.Body).Decode(&billData)
