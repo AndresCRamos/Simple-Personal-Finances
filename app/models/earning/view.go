@@ -5,14 +5,20 @@ import (
 	"fmt"
 	"net/http"
 
+	auth_token "github.com/AndresCRamos/Simple-Personal-Finances/auth/models/token"
 	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
+	"github.com/emvi/null"
 	"github.com/gorilla/mux"
 )
 
-func GetEarningsBySourceId(ID uint) []EarningList {
+func UpdateBalance(balance float64, source_id uint) {
+	utils.Instance.Exec("UPDATE income_sources SET balance = balance + ? WHERE id = ?", balance, source_id)
+}
+
+func GetEarningsBySourceId(ID uint, user_id uint) []EarningList {
 	var earningList []Earning
 	var earningListDetail []EarningList
-	utils.Instance.Find(&earningList, "income_source_id = ?", ID)
+	utils.Instance.Find(&earningList, "income_source_id = ? AND user_id = ?", ID, user_id)
 	for _, currentEarning := range earningList {
 		earningListDetail = append(earningListDetail, EarningList(currentEarning))
 	}
@@ -20,9 +26,13 @@ func GetEarningsBySourceId(ID uint) []EarningList {
 }
 
 func GetEarningsByUserID(w http.ResponseWriter, r *http.Request) {
+	tokenObj, valid := auth_token.VerifyToken(w, r)
+	if !valid {
+		return
+	}
 	var Earnings []Earning
 	var EarningsGet []EarningGet
-	if err := utils.Instance.Find(&Earnings).Error; err != nil {
+	if err := utils.Instance.Find(&Earnings, "user_id = ?", tokenObj.User_id).Error; err != nil {
 		utils.DisplaySearchError(w, r, "earnings", err.Error())
 	}
 	for _, earningItem := range Earnings {
@@ -33,9 +43,9 @@ func GetEarningsByUserID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(EarningsGet)
 }
 
-func SearchEarningByID(id string) (Earning, bool, string) {
+func SearchEarningByID(id string, user_id uint) (Earning, bool, string) {
 	var earning Earning
-	err := utils.Instance.First(&earning, id).Error
+	err := utils.Instance.First(&earning, "user_id = ? AND id = ?", user_id, id).Error
 	found := true
 	errorString := ""
 	if err != nil {
@@ -46,8 +56,12 @@ func SearchEarningByID(id string) (Earning, bool, string) {
 }
 
 func GetEarningByID(w http.ResponseWriter, r *http.Request) {
+	tokenObj, valid := auth_token.VerifyToken(w, r)
+	if !valid {
+		return
+	}
 	earningId := mux.Vars(r)["id"]
-	earning, found, err := SearchEarningByID(earningId)
+	earning, found, err := SearchEarningByID(earningId, tokenObj.User_id)
 	if !found {
 		utils.DisplaySearchError(w, r, "earnings", err)
 	} else {
@@ -59,6 +73,10 @@ func GetEarningByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateEarning(w http.ResponseWriter, r *http.Request) {
+	tokenObj, tokenValid := auth_token.VerifyToken(w, r)
+	if !tokenValid {
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	var earningData EarningCreate
 	errJson := json.NewDecoder(r.Body).Decode(&earningData)
@@ -67,12 +85,14 @@ func CreateEarning(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	earning := *earningData.Parse()
+	earning.User_id = null.NewInt64(int64(tokenObj.User_id), true)
 	valid := utils.Validate(w, "Source", earning)
 	if !valid {
 		return
 	} else if err := utils.Instance.Create(&earning).Error; err != nil {
 		utils.DisplaySearchError(w, r, "earnings", err.Error())
 	} else {
+		UpdateBalance(earning.Amount.Float64, uint(earning.Income_Source_id.Int64))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		EarningGet := EarningGet(earning)
@@ -81,11 +101,16 @@ func CreateEarning(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateEarning(w http.ResponseWriter, r *http.Request) {
+	tokenObj, valid := auth_token.VerifyToken(w, r)
+	if !valid {
+		return
+	}
 	var earning Earning
 	var earningData EarningCreate
 	earningId := mux.Vars(r)["id"]
-	if err := utils.Instance.First(&earning, earningId).Error; err != nil {
-		utils.DisplaySearchError(w, r, "earnings", err.Error())
+	earning, found, err := SearchEarningByID(earningId, tokenObj.User_id)
+	if !found {
+		utils.DisplaySearchError(w, r, "earnings", err)
 		return
 	}
 	json.NewDecoder(r.Body).Decode(&earningData)
@@ -95,6 +120,7 @@ func UpdateEarning(w http.ResponseWriter, r *http.Request) {
 	} else if err := utils.Instance.Where("id = ?", earningId).Updates(&earning).Error; err != nil {
 		utils.DisplaySearchError(w, r, "earnings", err.Error())
 	} else {
+		UpdateBalance(earning.Amount.Float64, uint(earning.Income_Source_id.Int64))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&earning)
@@ -102,13 +128,18 @@ func UpdateEarning(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteEarning(w http.ResponseWriter, r *http.Request) {
+	tokenObj, valid := auth_token.VerifyToken(w, r)
+	if !valid {
+		return
+	}
 	earningId := mux.Vars(r)["id"]
-	earning, found, err := SearchEarningByID(earningId)
+	earning, found, err := SearchEarningByID(earningId, tokenObj.ID)
 	if !found {
 		utils.DisplaySearchError(w, r, "earnings", err)
 	} else if err := utils.Instance.Delete(&earning).Error; err != nil {
 		utils.DisplaySearchError(w, r, "earnings", err.Error())
 	} else {
+		UpdateBalance(earning.Amount.Float64*-1, uint(earning.Income_Source_id.Int64))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode("Deleted")

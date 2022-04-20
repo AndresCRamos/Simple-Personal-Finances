@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 
 	bill "github.com/AndresCRamos/Simple-Personal-Finances/models/bills"
-	"github.com/AndresCRamos/Simple-Personal-Finances/models/earning"
+	earning "github.com/AndresCRamos/Simple-Personal-Finances/models/earning"
 )
 
 type IncomeSourceGet IncomeSource
@@ -24,7 +24,7 @@ func (ig *IncomeSourceGet) MarshalJSON() ([]byte, error) {
 func (ig *IncomeSourceDetail) MarshalJSON() ([]byte, error) {
 	type Alias IncomeSourceDetail
 	billListDetail := bill.GetBillsBySourceId(ig.ID, uint(ig.User_id.Int64))
-	earningListDetail := earning.GetEarningsBySourceId(ig.ID)
+	earningListDetail := earning.GetEarningsBySourceId(ig.ID, uint(ig.User_id.Int64))
 	return json.Marshal(&struct {
 		*Alias
 		Bills    []bill.BillList       `json:"bills"`

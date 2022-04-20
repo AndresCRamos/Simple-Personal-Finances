@@ -11,6 +11,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
+func UpdateBalance(balance float64, source_id uint) {
+	utils.Instance.Exec("UPDATE income_sources SET balance = balance - ? WHERE id = ?", balance, source_id)
+}
+
 func GetBillsBySourceId(ID uint, user_id uint) []BillList {
 	var billList []Bill
 	var billListDetail []BillList
@@ -89,6 +93,7 @@ func CreateBill(w http.ResponseWriter, r *http.Request) {
 	} else if err := utils.Instance.Create(&bill).Error; err != nil {
 		utils.DisplaySearchError(w, r, "bills", err.Error())
 	} else {
+		UpdateBalance(bill.Amount.Float64, uint(bill.Income_Source_id.Int64))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		BillGet := BillGet(bill)
@@ -116,6 +121,7 @@ func UpdateBill(w http.ResponseWriter, r *http.Request) {
 	} else if err := utils.Instance.Where("id = ?", billId).Updates(&bill).Error; err != nil {
 		utils.DisplaySearchError(w, r, "bills", err.Error())
 	} else {
+		UpdateBalance(bill.Amount.Float64, uint(bill.Income_Source_id.Int64))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode(&bill)
@@ -134,6 +140,7 @@ func DeleteBill(w http.ResponseWriter, r *http.Request) {
 	} else if err := utils.Instance.Delete(&bill).Error; err != nil {
 		utils.DisplaySearchError(w, r, "bills", err.Error())
 	} else {
+		UpdateBalance(bill.Amount.Float64*-1, uint(bill.Income_Source_id.Int64))
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode("Deleted")
