@@ -18,14 +18,12 @@ func (ig *Bill) MarshalJSON() ([]byte, error) {
 		Description      string  `json:"description"`
 		Amount           float64 `json:"amount"`
 		Date             string  `json:"date"`
-		User_id          int64   `json:"user_id"`
 		Income_Source_id int64   `json:"source_id"`
 	}{
 		ig.Name.String,
 		ig.Description.String,
 		ig.Amount.Float64,
 		fmt.Sprintf("%d-%v-%d", year, int(month), day),
-		ig.User_id.Int64,
 		ig.Income_Source_id.Int64,
 	})
 }
@@ -79,8 +77,8 @@ type BillCreate struct {
 }
 
 func (bc *BillCreate) Parse() *Bill {
-	date, _ := time.Parse("2006-01-02", bc.Date.String)
-	validDate := bc.Date.Valid && bc.Date.String != ""
+	date, parsed := time.Parse("2006-01-02", bc.Date.String)
+	validDate := bc.Date.Valid && bc.Date.String != "" && parsed == nil
 	return &Bill{
 		ID:               bc.ID,
 		Name:             bc.Name,

@@ -4,14 +4,20 @@ import (
 	"encoding/json"
 	"net/http"
 
+	auth_token "github.com/AndresCRamos/Simple-Personal-Finances/auth/models/token"
 	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
+	"github.com/emvi/null"
 	"github.com/gorilla/mux"
 )
 
 func GetIncomeSourcesByUserID(w http.ResponseWriter, r *http.Request) {
+	tokenObj, valid := auth_token.VerifyToken(w, r)
+	if !valid {
+		return
+	}
 	var incomeSources []IncomeSource
 	var incomeSourcesGet []IncomeSourceGet
-	if err := utils.Instance.Find(&incomeSources).Error; err != nil {
+	if err := utils.Instance.Find(&incomeSources, "user_id = ?", tokenObj.User_id).Error; err != nil {
 		utils.DisplaySearchError(w, r, "Sources", err.Error())
 	}
 	for _, sourceItem := range incomeSources {
@@ -22,9 +28,9 @@ func GetIncomeSourcesByUserID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(incomeSourcesGet)
 }
 
-func SearchIncomeSourceByID(id string) (IncomeSource, bool, string) {
+func SearchIncomeSourceByID(id string, user_id uint) (IncomeSource, bool, string) {
 	var source IncomeSource
-	err := utils.Instance.First(&source, id).Error
+	err := utils.Instance.First(&source, "id = ? AND user_id = ?", id, user_id).Error
 	found := true
 	errorString := ""
 	if err != nil {
@@ -35,8 +41,12 @@ func SearchIncomeSourceByID(id string) (IncomeSource, bool, string) {
 }
 
 func GetIncomeSourcesByID(w http.ResponseWriter, r *http.Request) {
+	tokenObj, valid := auth_token.VerifyToken(w, r)
+	if !valid {
+		return
+	}
 	sourceId := mux.Vars(r)["id"]
-	source, found, err := SearchIncomeSourceByID(sourceId)
+	source, found, err := SearchIncomeSourceByID(sourceId, tokenObj.User_id)
 	if !found {
 		utils.DisplaySearchError(w, r, "Sources", err)
 	} else {
@@ -47,8 +57,12 @@ func GetIncomeSourcesByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetIncomeSourcesDetailByID(w http.ResponseWriter, r *http.Request) {
+	tokenObj, valid := auth_token.VerifyToken(w, r)
+	if !valid {
+		return
+	}
 	sourceId := mux.Vars(r)["id"]
-	source, found, err := SearchIncomeSourceByID(sourceId)
+	source, found, err := SearchIncomeSourceByID(sourceId, tokenObj.User_id)
 	if !found {
 		utils.DisplaySearchError(w, r, "Sources", err)
 	} else {
@@ -60,13 +74,19 @@ func GetIncomeSourcesDetailByID(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateIncomeSource(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	tokenObj, validToken := auth_token.VerifyToken(w, r)
+	if !validToken {
+		return
+	}
 	var incomeSource IncomeSource
 	json.NewDecoder(r.Body).Decode(&incomeSource)
+	incomeSource.User_id = null.NewInt64(int64(tokenObj.User_id), true)
 	valid := utils.Validate(w, "Source", incomeSource)
 	if !valid {
 		return
-	} else if err := utils.Instance.Create(&incomeSource).Error; err != nil {
+	}
+
+	if err := utils.Instance.Create(&incomeSource).Error; err != nil {
 		utils.DisplaySearchError(w, r, "Sources", err.Error())
 	} else {
 		w.Header().Set("Content-Type", "application/json")
@@ -77,10 +97,15 @@ func CreateIncomeSource(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateIncomeSource(w http.ResponseWriter, r *http.Request) {
-	var source IncomeSource
+	tokenObj, valid := auth_token.VerifyToken(w, r)
+	if !valid {
+		return
+	}
 	sourceId := mux.Vars(r)["id"]
-	if err := utils.Instance.First(&source, sourceId).Error; err != nil {
-		utils.DisplaySearchError(w, r, "Sources", err.Error())
+	source, found, err := SearchIncomeSourceByID(sourceId, tokenObj.User_id)
+
+	if !found {
+		utils.DisplaySearchError(w, r, "Sources", err)
 		return
 	}
 	json.NewDecoder(r.Body).Decode(&source)
@@ -96,8 +121,12 @@ func UpdateIncomeSource(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteIncomeSource(w http.ResponseWriter, r *http.Request) {
+	tokenObj, valid := auth_token.VerifyToken(w, r)
+	if !valid {
+		return
+	}
 	sourceId := mux.Vars(r)["id"]
-	source, found, err := SearchIncomeSourceByID(sourceId)
+	source, found, err := SearchIncomeSourceByID(sourceId, tokenObj.User_id)
 	if !found {
 		utils.DisplaySearchError(w, r, "Sources", err)
 	} else if err := utils.Instance.Delete(&source).Error; err != nil {

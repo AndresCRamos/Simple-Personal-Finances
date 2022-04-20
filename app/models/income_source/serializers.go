@@ -23,7 +23,7 @@ func (ig *IncomeSourceGet) MarshalJSON() ([]byte, error) {
 
 func (ig *IncomeSourceDetail) MarshalJSON() ([]byte, error) {
 	type Alias IncomeSourceDetail
-	billListDetail := bill.GetBillsBySourceId(ig.ID)
+	billListDetail := bill.GetBillsBySourceId(ig.ID, uint(ig.User_id.Int64))
 	earningListDetail := earning.GetEarningsBySourceId(ig.ID)
 	return json.Marshal(&struct {
 		*Alias
