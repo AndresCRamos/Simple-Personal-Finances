@@ -1,13 +1,27 @@
 version: '3'
 
 services:
+  db:
+    container_name: 'db'
+    image: postgres:latest
+    ports:
+    - 54320:5432
+    env_file:
+      - dev.env
+    volumes:
+    - db_data:/var/lib/postgresql/data
   app:
     build: 
       context: "."
       dockerfile: ".Dockerfile.dev"
     env_file:
-      - .env.dev
+      - dev.env
     ports: 
       - "8080:8080"
-    volumes:
-      - ./app:.
+    # volumes:
+    #   - ./app:.
+    depends_on:
+      - db
+
+volumes:
+  db_data:
