@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -23,10 +21,6 @@ func (c *Config) GetPort() string {
 
 func LoadConfig() *Config {
 	log.Println("Loading Config...")
-	err := godotenv.Load("../dev.env")
-	if err != nil {
-		log.Fatal("Can not load .env file", err)
-	}
 	appConfig := Config{
 		port: "8080",
 	}
