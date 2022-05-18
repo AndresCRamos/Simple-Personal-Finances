@@ -2,6 +2,7 @@ package db
 
 import (
 	"log"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -14,23 +15,37 @@ import (
 	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
 )
 
-var err error
+func tryConnection(connectionString string) (*gorm.DB, error) {
+	var dbConn *gorm.DB
+	var err error
+	for i := 0; i < 3; i++ {
+		dbConn, err = gorm.Open(postgres.New(postgres.Config{
+			DSN: connectionString,
+		}), &gorm.Config{},
+		)
+		if err == nil {
+			break
+		}
+		log.Println("Can't connect to database, reconnecting...")
+		time.Sleep(time.Minute)
+	}
+	return dbConn, err
+}
 
 func Connect(connectionString string) {
 	log.Println("Connecting to Database...")
-	utils.Instance, err = gorm.Open(postgres.New(postgres.Config{
-		DSN: connectionString,
-	}), &gorm.Config{},
-	)
+
+	dbConn, err := tryConnection(connectionString)
 	if err != nil {
 		log.Fatal(err)
-		panic("Cannot connect to DB")
+		panic("Failed to connect to DB")
 	}
+	utils.Instance = dbConn
 	log.Println("Connected to Database")
 }
 
 func Migrate() {
-	log.Println("Database Migration Started...")
+	log.Println("Database Migration Started....")
 	utils.Instance.AutoMigrate(&incomesource.IncomeSource{})
 	utils.Instance.AutoMigrate(&bill.Bill{})
 	utils.Instance.AutoMigrate(&earning.Earning{})
