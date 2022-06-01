@@ -17,6 +17,7 @@ type listFieldErrorAPIBuilder struct {
 }
 
 type FieldError struct {
+	ID      int
 	Field   string
 	Message string
 }
