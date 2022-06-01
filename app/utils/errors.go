@@ -17,8 +17,19 @@ type listFieldErrorAPIBuilder struct {
 }
 
 type FieldError struct {
+	ID      int
 	Field   string
 	Message string
+}
+
+func (f *FieldError) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		Field   string
+		Message string
+	}{
+		f.Field,
+		f.Message,
+	})
 }
 
 func DisplaySearchError(w http.ResponseWriter, r *http.Request, source string, errorList string) {
