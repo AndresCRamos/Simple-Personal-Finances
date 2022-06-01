@@ -22,6 +22,16 @@ type FieldError struct {
 	Message string
 }
 
+func (f *FieldError) MarshalJSON() ([]byte, error) {
+	return json.Marshal(&struct {
+		Field   string
+		Message string
+	}{
+		f.Field,
+		f.Message,
+	})
+}
+
 func DisplaySearchError(w http.ResponseWriter, r *http.Request, source string, errorList string) {
 	log.Printf("404 %s, %v", source, errorList)
 	w.WriteHeader(http.StatusNotFound)

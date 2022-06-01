@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/mail"
 	"reflect"
+	"sort"
 	"strings"
 	"sync"
 
@@ -147,12 +148,15 @@ func Validate(w http.ResponseWriter, source string, in interface{}) bool {
 	}
 	wg.Wait()
 	if len(ChanNullErr) > 0 {
-		len := len(ChanNullErr)
-		errNullList := make([]FieldError, len)
-		for i := 0; i < len; i++ {
+		Errlen := len(ChanNullErr)
+		errNullList := make([]FieldError, Errlen)
+		for i := 0; i < Errlen; i++ {
 			err := <-ChanNullErr
 			errNullList[i] = err
 		}
+		sort.Slice(errNullList, func(i, j int) bool {
+			return errNullList[i].ID < errNullList[j].ID
+		})
 		defer DisplayFieldErrors(w, source, errNullList)
 		return false
 	}
