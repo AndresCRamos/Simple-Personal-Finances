@@ -5,7 +5,9 @@ import (
 	"net/http"
 	"net/mail"
 	"reflect"
+	"sort"
 	"strings"
+	"sync"
 
 	"github.com/emvi/null"
 )
@@ -40,6 +42,7 @@ func getValidationType(validationTagList []string) string {
 }
 
 type fieldData struct {
+	id            int
 	name          string
 	value         interface{}
 	dbTag         []string
@@ -47,10 +50,11 @@ type fieldData struct {
 	nullable      bool
 }
 
-func getfieldData(v reflect.Value, typeOfS reflect.StructField) fieldData {
+func getfieldData(id int, v reflect.Value, typeOfS reflect.StructField) fieldData {
 	FieldDBTag := strings.Split(typeOfS.Tag.Get("gorm"), ";")
 	nullable := !isItNullable(FieldDBTag)
 	return fieldData{
+		id:            id,
 		name:          typeOfS.Name,
 		value:         v.Interface(),
 		dbTag:         FieldDBTag,
@@ -59,7 +63,8 @@ func getfieldData(v reflect.Value, typeOfS reflect.StructField) fieldData {
 	}
 }
 
-func validateNullable(fieldData fieldData) (FieldError, bool) {
+func validateNullable(fieldData fieldData, ChanNullErr chan<- FieldError, wg *sync.WaitGroup) {
+	defer wg.Done()
 	isValid := true
 	errorField := FieldError{}
 	if val, ok := fieldData.value.(null.String); ok {
@@ -84,11 +89,12 @@ func validateNullable(fieldData fieldData) (FieldError, bool) {
 	}
 	if !isValid {
 		errorField = FieldError{
+			ID:      fieldData.id,
 			Field:   fieldData.name,
 			Message: fmt.Sprintf("%s can´t be null", strings.ToLower(fieldData.name)),
 		}
+		ChanNullErr <- errorField
 	}
-	return errorField, isValid
 }
 
 func getStringValue(i interface{}) (string, bool) {
@@ -102,52 +108,61 @@ func getStringValue(i interface{}) (string, bool) {
 
 }
 
-func validateType(fieldData fieldData) (FieldError, bool) {
+func validateType(fieldData fieldData, ChanTypeErr chan<- FieldError, wg *sync.WaitGroup) {
+	defer wg.Done()
 	if validationType := getValidationType(fieldData.validationTag); validationType != "none" {
 		if validationType == "email" {
 			email, isString := getStringValue(fieldData.value)
 			if !isString {
-				return FieldError{
+				ChanTypeErr <- FieldError{
+					ID:      fieldData.id,
 					Field:   fieldData.name,
 					Message: fmt.Sprintf("%s must be a string", strings.ToLower(fieldData.name)),
-				}, false
+				}
 			} else if _, err := mail.ParseAddress(email); err != nil {
-				return FieldError{
+				ChanTypeErr <- FieldError{
+					ID:      fieldData.id,
 					Field:   fieldData.name,
 					Message: fmt.Sprintf("%s isn´t a valid email", strings.ToLower(fieldData.name)),
-				}, false
+				}
 			}
-			return FieldError{}, true
 		}
 	}
-	return FieldError{}, true
 }
 
-func Validate(w http.ResponseWriter, source string, i interface{}) bool {
-	v := reflect.ValueOf(i)
-	isNullValid := true
-	isTypeValid := true
-	typeOfS := v.Type()
-	var errorNullList = []FieldError{}
-	var errorTypeList = []FieldError{}
+func validateField(validateFieldData fieldData, ChanNullErr chan<- FieldError, ChanTypeErr chan<- FieldError, wg *sync.WaitGroup) {
+	go validateNullable(validateFieldData, ChanNullErr, wg)
+	go validateType(validateFieldData, ChanTypeErr, wg)
+}
 
+func Validate(w http.ResponseWriter, source string, in interface{}) bool {
+	v := reflect.ValueOf(in)
+	typeOfS := v.Type()
+	ChanNullErr := make(chan FieldError, v.NumField())
+	ChanTypeErr := make(chan FieldError, v.NumField())
+	wg := new(sync.WaitGroup)
+	wg.Add(v.NumField() * 2)
 	for i := 0; i < v.NumField(); i++ {
-		fieldData := getfieldData(v.Field(i), typeOfS.Field(i))
-		if err, ok := validateNullable(fieldData); !ok {
-			errorNullList = append(errorNullList, err)
-			isNullValid = false
-		}
-		if err, ok := validateType(fieldData); !ok {
-			errorTypeList = append(errorTypeList, err)
-			isTypeValid = false
-		}
+		fieldData := getfieldData(i, v.Field(i), typeOfS.Field(i))
+		go validateField(fieldData, ChanNullErr, ChanTypeErr, wg)
 	}
-	if !isNullValid {
-		DisplayFieldErrors(w, source, errorNullList)
+	wg.Wait()
+	if len(ChanNullErr) > 0 {
+		Errlen := len(ChanNullErr)
+		errNullList := make([]FieldError, Errlen)
+		for i := 0; i < Errlen; i++ {
+			err := <-ChanNullErr
+			errNullList[i] = err
+		}
+		sort.Slice(errNullList, func(i, j int) bool {
+			return errNullList[i].ID < errNullList[j].ID
+		})
+		defer DisplayFieldErrors(w, source, errNullList)
 		return false
 	}
-	if !isTypeValid {
-		DisplayFieldErrors(w, source, errorTypeList)
+	if len(ChanTypeErr) != 0 {
+		errTypeList := make([]FieldError, len(ChanTypeErr))
+		DisplayFieldErrors(w, source, errTypeList)
 		return false
 	}
 	return true
