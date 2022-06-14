@@ -10,6 +10,7 @@ import (
 	token "github.com/AndresCRamos/Simple-Personal-Finances/auth/models/token"
 	auth_user "github.com/AndresCRamos/Simple-Personal-Finances/auth/models/user"
 	bill "github.com/AndresCRamos/Simple-Personal-Finances/models/bills"
+	debt "github.com/AndresCRamos/Simple-Personal-Finances/models/debt"
 	earning "github.com/AndresCRamos/Simple-Personal-Finances/models/earning"
 	incomesource "github.com/AndresCRamos/Simple-Personal-Finances/models/income_source"
 	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
@@ -51,5 +52,6 @@ func Migrate() {
 	utils.Instance.AutoMigrate(&earning.Earning{})
 	utils.Instance.AutoMigrate(&auth_user.User{})
 	utils.Instance.AutoMigrate(&token.Token{})
+	utils.Instance.AutoMigrate(&debt.Debt{})
 	log.Println("Database Migration Completed")
 }
