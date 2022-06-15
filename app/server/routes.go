@@ -7,6 +7,7 @@ import (
 
 	auth_user "github.com/AndresCRamos/Simple-Personal-Finances/auth/models/user"
 	bill "github.com/AndresCRamos/Simple-Personal-Finances/models/bills"
+	debt "github.com/AndresCRamos/Simple-Personal-Finances/models/debt"
 	earning "github.com/AndresCRamos/Simple-Personal-Finances/models/earning"
 	incomesource "github.com/AndresCRamos/Simple-Personal-Finances/models/income_source"
 	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
@@ -27,6 +28,7 @@ func loadRoutes() {
 	utils.AddRoutes(bill.BillsRoutes)
 	utils.AddRoutes(earning.EarningsRoutes)
 	utils.AddRoutes(auth_user.AuthUserRoutes)
+	utils.AddRoutes(debt.DebtsRoutes)
 }
 
 func getPaths(w http.ResponseWriter, r *http.Request) {
