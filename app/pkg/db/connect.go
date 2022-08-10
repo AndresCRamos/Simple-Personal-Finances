@@ -7,12 +7,12 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	token "github.com/AndresCRamos/Simple-Personal-Finances/auth/models/token"
-	auth_user "github.com/AndresCRamos/Simple-Personal-Finances/auth/models/user"
 	bill "github.com/AndresCRamos/Simple-Personal-Finances/models/bills"
 	earning "github.com/AndresCRamos/Simple-Personal-Finances/models/earning"
 	incomesource "github.com/AndresCRamos/Simple-Personal-Finances/models/income_source"
-	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
+	token "github.com/AndresCRamos/Simple-Personal-Finances/pkg/auth/models/token"
+	auth_user "github.com/AndresCRamos/Simple-Personal-Finances/pkg/auth/models/user"
+	"github.com/AndresCRamos/Simple-Personal-Finances/pkg/utils"
 )
 
 func tryConnection(connectionString string) (*gorm.DB, error) {

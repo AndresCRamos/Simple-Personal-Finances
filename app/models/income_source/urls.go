@@ -1,6 +1,6 @@
 package incomesource
 
-import "github.com/AndresCRamos/Simple-Personal-Finances/utils"
+import "github.com/AndresCRamos/Simple-Personal-Finances/pkg/utils"
 
 var SourcesRoutes = []utils.Route{
 	{Url: "/api/v1/source", Handler: GetIncomeSourcesByUserID, Method: "GET"},

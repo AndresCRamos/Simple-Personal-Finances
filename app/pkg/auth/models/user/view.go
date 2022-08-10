@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"time"
 
-	auth_token "github.com/AndresCRamos/Simple-Personal-Finances/auth/models/token"
-	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
+	auth_token "github.com/AndresCRamos/Simple-Personal-Finances/pkg/auth/models/token"
+	"github.com/AndresCRamos/Simple-Personal-Finances/pkg/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -75,7 +75,7 @@ func LogOut(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(&struct {
 		Message string
 	}{
-		"Logout successfull",
+		"Logout successful",
 	})
 
 }

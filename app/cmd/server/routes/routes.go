@@ -1,15 +1,15 @@
-package server
+package routes
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
 
-	auth_user "github.com/AndresCRamos/Simple-Personal-Finances/auth/models/user"
 	bill "github.com/AndresCRamos/Simple-Personal-Finances/models/bills"
 	earning "github.com/AndresCRamos/Simple-Personal-Finances/models/earning"
 	incomesource "github.com/AndresCRamos/Simple-Personal-Finances/models/income_source"
-	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
+	auth_user "github.com/AndresCRamos/Simple-Personal-Finances/pkg/auth/models/user"
+	"github.com/AndresCRamos/Simple-Personal-Finances/pkg/utils"
 	"github.com/gorilla/mux"
 )
 

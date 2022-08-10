@@ -1,10 +1,10 @@
 package auth_user
 
 import (
-	token "github.com/AndresCRamos/Simple-Personal-Finances/auth/models/token"
 	bill "github.com/AndresCRamos/Simple-Personal-Finances/models/bills"
 	earning "github.com/AndresCRamos/Simple-Personal-Finances/models/earning"
 	incomesource "github.com/AndresCRamos/Simple-Personal-Finances/models/income_source"
+	token "github.com/AndresCRamos/Simple-Personal-Finances/pkg/auth/models/token"
 	"github.com/emvi/null"
 )
 

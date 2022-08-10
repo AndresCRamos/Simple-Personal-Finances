@@ -1,6 +1,6 @@
 package bill
 
-import "github.com/AndresCRamos/Simple-Personal-Finances/utils"
+import "github.com/AndresCRamos/Simple-Personal-Finances/pkg/utils"
 
 var BillsRoutes = []utils.Route{
 	{Url: "/api/v1/bill", Handler: GetBillsByUserID, Method: "GET"},

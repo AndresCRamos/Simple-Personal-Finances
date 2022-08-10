@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/AndresCRamos/Simple-Personal-Finances/db"
-	"github.com/AndresCRamos/Simple-Personal-Finances/server"
-	"github.com/AndresCRamos/Simple-Personal-Finances/settings"
+	"github.com/AndresCRamos/Simple-Personal-Finances/cmd/server"
+	"github.com/AndresCRamos/Simple-Personal-Finances/cmd/server/settings"
+	"github.com/AndresCRamos/Simple-Personal-Finances/pkg/db"
 )
 
 func main() {

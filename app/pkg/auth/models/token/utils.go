@@ -3,7 +3,7 @@ package auth_token
 import (
 	"net/http"
 
-	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
+	"github.com/AndresCRamos/Simple-Personal-Finances/pkg/utils"
 	"golang.org/x/crypto/bcrypt"
 )
 

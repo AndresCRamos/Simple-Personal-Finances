@@ -1,6 +1,6 @@
 package auth_user
 
-import "github.com/AndresCRamos/Simple-Personal-Finances/utils"
+import "github.com/AndresCRamos/Simple-Personal-Finances/pkg/utils"
 
 var AuthUserRoutes = []utils.Route{
 	{Url: "/register", Handler: Register, Method: "POST"},

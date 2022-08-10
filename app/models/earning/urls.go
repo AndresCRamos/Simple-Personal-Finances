@@ -1,6 +1,6 @@
 package earning
 
-import "github.com/AndresCRamos/Simple-Personal-Finances/utils"
+import "github.com/AndresCRamos/Simple-Personal-Finances/pkg/utils"
 
 var EarningsRoutes = []utils.Route{
 	{Url: "/api/v1/earning", Handler: GetEarningsByUserID, Method: "GET"},

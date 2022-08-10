@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
-	auth_token "github.com/AndresCRamos/Simple-Personal-Finances/auth/models/token"
-	"github.com/AndresCRamos/Simple-Personal-Finances/utils"
+	auth_token "github.com/AndresCRamos/Simple-Personal-Finances/pkg/auth/models/token"
+	"github.com/AndresCRamos/Simple-Personal-Finances/pkg/utils"
 	"github.com/emvi/null"
 	"github.com/gorilla/mux"
 )
