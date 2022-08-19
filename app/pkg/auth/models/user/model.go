@@ -2,7 +2,6 @@ package auth_user
 
 import (
 	"github.com/AndresCRamos/Simple-Personal-Finances/models/class"
-	earning "github.com/AndresCRamos/Simple-Personal-Finances/models/earning"
 	incomesource "github.com/AndresCRamos/Simple-Personal-Finances/models/income_source"
 	token "github.com/AndresCRamos/Simple-Personal-Finances/pkg/auth/models/token"
 	"github.com/emvi/null"
@@ -15,7 +14,7 @@ type User struct {
 	Email    null.String                 `gorm:"notnull;unique" json:"email"`
 	Password []byte                      `gorm:"notnull" json:"-"`
 	Token    token.Token                 `json:"-"`
-	Earnings []earning.Earning           `json:"-"`
+	Earnings []class.Earning             `json:"-"`
 	Bills    []class.Bill                `json:"-"`
 	Sources  []incomesource.IncomeSource `json:"-"`
 }

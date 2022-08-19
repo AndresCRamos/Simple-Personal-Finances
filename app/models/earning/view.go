@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/AndresCRamos/Simple-Personal-Finances/models/class"
 	auth_token "github.com/AndresCRamos/Simple-Personal-Finances/pkg/auth/models/token"
 	"github.com/AndresCRamos/Simple-Personal-Finances/pkg/utils"
 	"github.com/emvi/null"
@@ -16,7 +17,7 @@ func UpdateBalance(balance float64, source_id uint) {
 }
 
 func GetEarningsBySourceId(ID uint, user_id uint) []EarningList {
-	var earningList []Earning
+	var earningList []class.Earning
 	var earningListDetail []EarningList
 	utils.Instance.Find(&earningList, "income_source_id = ? AND user_id = ?", ID, user_id)
 	for _, currentEarning := range earningList {
@@ -30,7 +31,7 @@ func GetEarningsByUserID(w http.ResponseWriter, r *http.Request) {
 	if !valid {
 		return
 	}
-	var Earnings []Earning
+	var Earnings []class.Earning
 	var EarningsGet []EarningGet
 	if err := utils.Instance.Find(&Earnings, "user_id = ?", tokenObj.User_id).Error; err != nil {
 		utils.DisplaySearchError(w, r, "earnings", err.Error())
@@ -43,8 +44,8 @@ func GetEarningsByUserID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(EarningsGet)
 }
 
-func SearchEarningByID(id string, user_id uint) (Earning, bool, string) {
-	var earning Earning
+func SearchEarningByID(id string, user_id uint) (class.Earning, bool, string) {
+	var earning class.Earning
 	err := utils.Instance.First(&earning, "user_id = ? AND id = ?", user_id, id).Error
 	found := true
 	errorString := ""
@@ -105,7 +106,7 @@ func UpdateEarning(w http.ResponseWriter, r *http.Request) {
 	if !valid {
 		return
 	}
-	var earning Earning
+	var earning class.Earning
 	var earningData EarningCreate
 	earningId := mux.Vars(r)["id"]
 	earning, found, err := SearchEarningByID(earningId, tokenObj.User_id)
