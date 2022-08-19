@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/AndresCRamos/Simple-Personal-Finances/models/class"
 	auth_token "github.com/AndresCRamos/Simple-Personal-Finances/pkg/auth/models/token"
 	"github.com/AndresCRamos/Simple-Personal-Finances/pkg/utils"
 	"github.com/emvi/null"
@@ -15,7 +16,7 @@ func GetIncomeSourcesByUserID(w http.ResponseWriter, r *http.Request) {
 	if !valid {
 		return
 	}
-	var incomeSources []IncomeSource
+	var incomeSources []class.IncomeSource
 	var incomeSourcesGet []IncomeSourceGet
 	if err := utils.Instance.Find(&incomeSources, "user_id = ?", tokenObj.User_id).Error; err != nil {
 		utils.DisplaySearchError(w, r, "Sources", err.Error())
@@ -28,8 +29,8 @@ func GetIncomeSourcesByUserID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(incomeSourcesGet)
 }
 
-func SearchIncomeSourceByID(id string, user_id uint) (IncomeSource, bool, string) {
-	var source IncomeSource
+func SearchIncomeSourceByID(id string, user_id uint) (class.IncomeSource, bool, string) {
+	var source class.IncomeSource
 	err := utils.Instance.First(&source, "id = ? AND user_id = ?", id, user_id).Error
 	found := true
 	errorString := ""
@@ -78,7 +79,7 @@ func CreateIncomeSource(w http.ResponseWriter, r *http.Request) {
 	if !validToken {
 		return
 	}
-	var incomeSource IncomeSource
+	var incomeSource class.IncomeSource
 	json.NewDecoder(r.Body).Decode(&incomeSource)
 	incomeSource.User_id = null.NewInt64(int64(tokenObj.User_id), true)
 	valid := utils.Validate(w, "Source", incomeSource)

@@ -18,7 +18,7 @@ type path struct {
 	Method string `json:"method"`
 }
 
-func loadRoutes() {
+func LoadRoutes() {
 	var rootUrls = []utils.Route{
 		{Url: "/", Handler: getPaths, Method: "GET"},
 	}

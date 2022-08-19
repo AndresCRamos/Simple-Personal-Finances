@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 
 	bill "github.com/AndresCRamos/Simple-Personal-Finances/models/bills"
+	"github.com/AndresCRamos/Simple-Personal-Finances/models/class"
 	earning "github.com/AndresCRamos/Simple-Personal-Finances/models/earning"
 )
 
-type IncomeSourceGet IncomeSource
-type IncomeSourceDetail IncomeSource
+type IncomeSourceGet class.IncomeSource
+type IncomeSourceDetail class.IncomeSource
 
 func (ig *IncomeSourceGet) MarshalJSON() ([]byte, error) {
 	type Alias IncomeSourceGet

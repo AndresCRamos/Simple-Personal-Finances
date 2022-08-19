@@ -8,7 +8,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/AndresCRamos/Simple-Personal-Finances/models/class"
-	incomesource "github.com/AndresCRamos/Simple-Personal-Finances/models/income_source"
 	token "github.com/AndresCRamos/Simple-Personal-Finances/pkg/auth/models/token"
 	auth_user "github.com/AndresCRamos/Simple-Personal-Finances/pkg/auth/models/user"
 	"github.com/AndresCRamos/Simple-Personal-Finances/pkg/utils"
@@ -45,7 +44,7 @@ func Connect(connectionString string) {
 
 func Migrate() {
 	log.Println("Database Migration Started....")
-	utils.Instance.AutoMigrate(&incomesource.IncomeSource{})
+	utils.Instance.AutoMigrate(&class.IncomeSource{})
 	utils.Instance.AutoMigrate(&class.Bill{})
 	utils.Instance.AutoMigrate(&class.Earning{})
 	utils.Instance.AutoMigrate(&auth_user.User{})
