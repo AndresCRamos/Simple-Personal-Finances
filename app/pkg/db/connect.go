@@ -7,7 +7,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 
-	bill "github.com/AndresCRamos/Simple-Personal-Finances/models/bills"
+	"github.com/AndresCRamos/Simple-Personal-Finances/models/class"
 	earning "github.com/AndresCRamos/Simple-Personal-Finances/models/earning"
 	incomesource "github.com/AndresCRamos/Simple-Personal-Finances/models/income_source"
 	token "github.com/AndresCRamos/Simple-Personal-Finances/pkg/auth/models/token"
@@ -47,7 +47,7 @@ func Connect(connectionString string) {
 func Migrate() {
 	log.Println("Database Migration Started....")
 	utils.Instance.AutoMigrate(&incomesource.IncomeSource{})
-	utils.Instance.AutoMigrate(&bill.Bill{})
+	utils.Instance.AutoMigrate(&class.Bill{})
 	utils.Instance.AutoMigrate(&earning.Earning{})
 	utils.Instance.AutoMigrate(&auth_user.User{})
 	utils.Instance.AutoMigrate(&token.Token{})

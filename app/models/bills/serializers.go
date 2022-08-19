@@ -5,28 +5,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/AndresCRamos/Simple-Personal-Finances/models/class"
 	"github.com/emvi/null"
 )
 
-type BillGet Bill
-type BillList Bill
-
-func (ig *Bill) MarshalJSON() ([]byte, error) {
-	year, month, day := ig.Date.Time.Date()
-	return json.Marshal(&struct {
-		Name             string  `json:"name"`
-		Description      string  `json:"description"`
-		Amount           float64 `json:"amount"`
-		Date             string  `json:"date"`
-		Income_Source_id int64   `json:"source_id"`
-	}{
-		ig.Name.String,
-		ig.Description.String,
-		ig.Amount.Float64,
-		fmt.Sprintf("%d-%v-%d", year, int(month), day),
-		ig.Income_Source_id.Int64,
-	})
-}
+type BillGet class.Bill
+type BillList class.Bill
 
 func (ig *BillGet) MarshalJSON() ([]byte, error) {
 	year, month, day := ig.Date.Time.Date()
@@ -76,10 +60,10 @@ type BillCreate struct {
 	Income_Source_id null.Int64   `json:"source_id"`
 }
 
-func (bc *BillCreate) Parse() *Bill {
+func (bc *BillCreate) Parse() *class.Bill {
 	date, parsed := time.Parse("2006-01-02", bc.Date.String)
 	validDate := bc.Date.Valid && bc.Date.String != "" && parsed == nil
-	return &Bill{
+	return &class.Bill{
 		ID:               bc.ID,
 		Name:             bc.Name,
 		Description:      bc.Description,

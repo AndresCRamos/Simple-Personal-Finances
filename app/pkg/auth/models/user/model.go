@@ -1,7 +1,7 @@
 package auth_user
 
 import (
-	bill "github.com/AndresCRamos/Simple-Personal-Finances/models/bills"
+	"github.com/AndresCRamos/Simple-Personal-Finances/models/class"
 	earning "github.com/AndresCRamos/Simple-Personal-Finances/models/earning"
 	incomesource "github.com/AndresCRamos/Simple-Personal-Finances/models/income_source"
 	token "github.com/AndresCRamos/Simple-Personal-Finances/pkg/auth/models/token"
@@ -16,6 +16,6 @@ type User struct {
 	Password []byte                      `gorm:"notnull" json:"-"`
 	Token    token.Token                 `json:"-"`
 	Earnings []earning.Earning           `json:"-"`
-	Bills    []bill.Bill                 `json:"-"`
+	Bills    []class.Bill                `json:"-"`
 	Sources  []incomesource.IncomeSource `json:"-"`
 }

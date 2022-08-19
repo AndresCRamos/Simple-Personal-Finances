@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/AndresCRamos/Simple-Personal-Finances/models/class"
 	auth_token "github.com/AndresCRamos/Simple-Personal-Finances/pkg/auth/models/token"
 	"github.com/AndresCRamos/Simple-Personal-Finances/pkg/utils"
 	"github.com/emvi/null"
@@ -16,7 +17,7 @@ func UpdateBalance(balance float64, source_id uint) {
 }
 
 func GetBillsBySourceId(ID uint, user_id uint) []BillList {
-	var billList []Bill
+	var billList []class.Bill
 	var billListDetail []BillList
 	utils.Instance.Find(&billList, "income_source_id = ? AND user_id = ?", ID, user_id)
 	for _, currentBill := range billList {
@@ -30,7 +31,7 @@ func GetBillsByUserID(w http.ResponseWriter, r *http.Request) {
 	if !valid {
 		return
 	}
-	var Bills []Bill
+	var Bills []class.Bill
 	var BillsGet []BillGet
 	if err := utils.Instance.Find(&Bills, "user_id = ?", tokenObj.User_id).Error; err != nil {
 		utils.DisplaySearchError(w, r, "bills", err.Error())
@@ -43,8 +44,8 @@ func GetBillsByUserID(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(BillsGet)
 }
 
-func SearchBillByID(id string, user_id uint) (Bill, bool, string) {
-	var bill Bill
+func SearchBillByID(id string, user_id uint) (class.Bill, bool, string) {
+	var bill class.Bill
 	err := utils.Instance.First(&bill, "user_id = ? AND id = ?", user_id, id).Error
 	found := true
 	errorString := ""
@@ -106,7 +107,7 @@ func UpdateBill(w http.ResponseWriter, r *http.Request) {
 	if !valid {
 		return
 	}
-	var bill Bill
+	var bill class.Bill
 	var billData BillCreate
 	billId := mux.Vars(r)["id"]
 	bill, found, err := SearchBillByID(billId, tokenObj.User_id)
